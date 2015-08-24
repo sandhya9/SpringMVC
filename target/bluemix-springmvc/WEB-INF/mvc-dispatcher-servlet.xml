@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/jee 
+        http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
+        >
+
+<!-- 	<context:component-scan base-package="bluemix.controller" /> -->
+
+	<bean class="bluemix.controller.BaseController">
+		<property name="accountService" ref="accountService"/>
+	</bean>
+	
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+	
+	<jee:jndi-lookup id="ca_dataSource"
+   		jndi-name="jdbc/cust_acctDS"
+   		expected-type="javax.sql.DataSource" />
+   
+	<bean name="accountService" class="bluemix.service.AccountService">
+		<property name="dataSource" ref="ca_dataSource"/>
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="ca_dataSource"/>
+		<property name="persistenceXmlLocation" value="classpath:persistence.xml"/>
+	</bean>
+	
+	<tx:annotation-driven/>
+	
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<!-- <property name="jpaDialect" ref="jpaDialect"/> -->
+	</bean>
+
+<!-- 	<bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+	</bean>		
+	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.OpenJpaDialect"/>
+ -->	
+</beans>
